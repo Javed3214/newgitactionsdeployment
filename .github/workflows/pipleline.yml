@@ -3,7 +3,7 @@ name: Auto Deploy MuleSoft App to CloudHub 2.0
 on:
   push:
     branches:
-      - main  # 👈 automatically triggers on push to main
+      - master   # 👈 Changed from 'main' to 'master'
 
 jobs:
   build:
