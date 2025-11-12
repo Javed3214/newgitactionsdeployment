@@ -1,17 +1,21 @@
 name: Reusable Workflow To Deploy MuleSoft Application
 
 on:
-  workflow_call:
+  workflow_call:  # this makes it reusable; must be called by another workflow
+    inputs:
+      environment:
+        required: true
+        type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout this repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache dependencies
+      - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -22,29 +26,25 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: "zulu"
+          distribution: 'zulu'
           java-version: 17
-
-      # Optional build step
-      # - name: Build JAR
-      #   run: mvn clean package -DmuleDeploy
 
       - name: Publish to Exchange
         run: |
           mvn deploy -DskipMunitTests \
-            -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
-            -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA
+            -Danypoint.username=${{ secrets.ANYPOINT_USERNAME }} \
+            -Danypoint.password=${{ secrets.ANYPOINT_PASSWORD }}
 
-  deploydev:
+  deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: dev
+    environment: ${{ inputs.environment }}
 
     steps:
-      - name: Checkout this repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache dependencies
+      - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -55,16 +55,16 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: "zulu"
+          distribution: 'zulu'
           java-version: 17
 
-      - name: Deploy to Dev
+      - name: Deploy to CloudHub 2.0
         run: |
           mvn mule:deploy -DskipMunitTests \
-            -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
-            -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA \
+            -Danypoint.username=${{ secrets.ANYPOINT_USERNAME }} \
+            -Danypoint.password=${{ secrets.ANYPOINT_PASSWORD }} \
             -Danypoint.businessGroup=a62f6236-0b02-4e5f-a8eb-dc5e37aedb12 \
-            -Denv=Dev \
+            -Denv=${{ inputs.environment }} \
             -Dapp.name=githubaction1 \
-            -Danypoint.platform.client_id=777df98bcd084a75bfe4b973a9e53516 \
-            -Danypoint.platform.client_secret=AF10d59Ee8C64EFb85BCc8474b2aA7eD
+            -Danypoint.platform.client_id=${{ secrets.ANYPOINT_CLIENT_ID }} \
+            -Danypoint.platform.client_secret=${{ secrets.ANYPOINT_CLIENT_SECRET }}
