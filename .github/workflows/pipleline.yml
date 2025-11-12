@@ -3,7 +3,7 @@ name: Auto Deploy MuleSoft App to CloudHub 2.0
 on:
   push:
     branches:
-      - master   # 👈 Changed from 'main' to 'master'
+      - master   # Trigger on master branch
 
 jobs:
   build:
@@ -27,9 +27,30 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
+      # 🧩 Configure Maven settings.xml for Anypoint authentication
+      - name: Configure Maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOL
+          <settings>
+            <servers>
+              <server>
+                <id>anypoint-exchange-v2</id>
+                <username>76f002fff9c041d78a663b0a26bc008f</username>
+                <password>a8055e977df843bCB9fFB5683E52A9BA</password>
+              </server>
+              <server>
+                <id>mule-enterprise</id>
+                <username>76f002fff9c041d78a663b0a26bc008f</username>
+                <password>a8055e977df843bCB9fFB5683E52A9BA</password>
+              </server>
+            </servers>
+          </settings>
+          EOL
+
       - name: Publish to Exchange
         run: |
-          mvn deploy -DskipMunitTests \
+          mvn clean deploy -DskipMunitTests --settings ~/.m2/settings.xml \
             -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
             -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA
 
@@ -56,9 +77,30 @@ jobs:
           distribution: 'zulu'
           java-version: 17
 
+      # 🧩 Configure Maven settings.xml for deploy step
+      - name: Configure Maven settings.xml
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml <<EOL
+          <settings>
+            <servers>
+              <server>
+                <id>anypoint-exchange-v2</id>
+                <username>76f002fff9c041d78a663b0a26bc008f</username>
+                <password>a8055e977df843bCB9fFB5683E52A9BA</password>
+              </server>
+              <server>
+                <id>mule-enterprise</id>
+                <username>76f002fff9c041d78a663b0a26bc008f</username>
+                <password>a8055e977df843bCB9fFB5683E52A9BA</password>
+              </server>
+            </servers>
+          </settings>
+          EOL
+
       - name: Deploy to CloudHub 2.0
         run: |
-          mvn mule:deploy -DskipMunitTests \
+          mvn mule:deploy -DskipMunitTests --settings ~/.m2/settings.xml \
             -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
             -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA \
             -Danypoint.businessGroup=a62f6236-0b02-4e5f-a8eb-dc5e37aedb12 \
