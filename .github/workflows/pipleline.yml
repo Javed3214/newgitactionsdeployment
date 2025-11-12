@@ -25,12 +25,9 @@ jobs:
           distribution: "zulu"
           java-version: 17
 
-      # Optional build step
-      # - name: Build JAR
-      #   run: mvn clean package -DmuleDeploy
-
-      - name: Publish to Exchange
+      - name: Build and Publish to Exchange
         run: |
+          echo "🚀 Building and publishing Mule app to Exchange..."
           mvn deploy --settings .maven/settings.xml -DskipMunitTests \
             -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
             -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA
@@ -60,6 +57,7 @@ jobs:
 
       - name: Deploy to Dev
         run: |
+          echo "🚀 Deploying Mule application to CloudHub Dev environment..."
           mvn mule:deploy --settings .maven/settings.xml -DskipMunitTests \
             -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
             -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA \
