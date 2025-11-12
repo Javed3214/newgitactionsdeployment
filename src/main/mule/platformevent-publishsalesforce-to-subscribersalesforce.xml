@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="ce617d50-566f-4d76-ba93-ac0c24e67711" >
+		<salesforce:basic-connection username="mohammad.khan@apicentrics.com" password="Javedkhan@1234" securityToken="m17sifz0YOO5LJ7zbTVP2PbM" />
+	</salesforce:sfdc-config>
+	<salesforce:sfdc-config name="Salesforce_Config1" doc:name="Salesforce Config" doc:id="f74cca3f-25e5-466c-a6d3-05b90fc0eaf3" >
+		<salesforce:basic-connection username="mohammad.khan@apicentrics.com" password="Javedkhan@1234" securityToken="m17sifz0YOO5LJ7zbTVP2PbM" />
+	</salesforce:sfdc-config>
+	<flow name="platformevent-publishsalesforce-to-subscribersalesforceFlow" doc:id="2841ff9b-f541-4474-88b0-e890ce29eda0" >
+		<salesforce:subscribe-channel-listener streamingChannel="/event/Source_platform_event__e" doc:name="Subscribe channel listener" doc:id="d7c23f6c-d478-4675-988d-e1d18f45e9b4" config-ref="Salesforce_Config1"/>
+		<ee:transform doc:name="Transform Message" doc:id="bb9e5aef-7a4b-4fca-97f7-ad4e26cb75c5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload.data.payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="5b2a7b97-d383-4bff-93a2-054195b726d6" message="#[payload]"/>
+	</flow>
+</mule>
