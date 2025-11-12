@@ -1,17 +1,21 @@
-name: Reusable Workflow To Deploy MuleSoft Application
+name: MuleSoft CI/CD Deployment Pipeline
 
 on:
-  workflow_call:
+  push:
+    branches:
+      - master     # 👈 Triggers automatically when code is pushed to master
+  workflow_dispatch:  # 👈 Allows manual triggering from the Actions tab
 
 jobs:
   build:
+    name: Build and Publish to Exchange
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout this repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Cache dependencies
+      - name: Cache Maven Dependencies
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -25,23 +29,27 @@ jobs:
           distribution: "zulu"
           java-version: 17
 
-      - name: Build and Publish to Exchange
+      # Optional build step
+      # - name: Build MuleSoft Application JAR
+      #   run: mvn clean package -DmuleDeploy
+
+      - name: Publish to Exchange
         run: |
-          echo "🚀 Building and publishing Mule app to Exchange..."
           mvn deploy --settings .maven/settings.xml -DskipMunitTests \
             -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
             -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA
 
-  deploydev:
+  deploy-dev:
+    name: Deploy to Dev Environment
     needs: build
     runs-on: ubuntu-latest
     environment: dev
 
     steps:
-      - name: Checkout this repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Cache dependencies
+      - name: Cache Maven Dependencies
         uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -57,7 +65,6 @@ jobs:
 
       - name: Deploy to Dev
         run: |
-          echo "🚀 Deploying Mule application to CloudHub Dev environment..."
           mvn mule:deploy --settings .maven/settings.xml -DskipMunitTests \
             -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
             -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA \
