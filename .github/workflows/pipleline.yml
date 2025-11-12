@@ -1,11 +1,9 @@
-name: Reusable Workflow To Deploy MuleSoft Application
+name: Auto Deploy MuleSoft App to CloudHub 2.0
 
 on:
-  workflow_call:  # this makes it reusable; must be called by another workflow
-    inputs:
-      environment:
-        required: true
-        type: string
+  push:
+    branches:
+      - main  # 👈 automatically triggers on push to main
 
 jobs:
   build:
@@ -32,13 +30,13 @@ jobs:
       - name: Publish to Exchange
         run: |
           mvn deploy -DskipMunitTests \
-            -Danypoint.username=${{ secrets.ANYPOINT_USERNAME }} \
-            -Danypoint.password=${{ secrets.ANYPOINT_PASSWORD }}
+            -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
+            -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: dev
 
     steps:
       - name: Checkout repository
@@ -61,10 +59,10 @@ jobs:
       - name: Deploy to CloudHub 2.0
         run: |
           mvn mule:deploy -DskipMunitTests \
-            -Danypoint.username=${{ secrets.ANYPOINT_USERNAME }} \
-            -Danypoint.password=${{ secrets.ANYPOINT_PASSWORD }} \
+            -Danypoint.username=76f002fff9c041d78a663b0a26bc008f \
+            -Danypoint.password=a8055e977df843bCB9fFB5683E52A9BA \
             -Danypoint.businessGroup=a62f6236-0b02-4e5f-a8eb-dc5e37aedb12 \
-            -Denv=${{ inputs.environment }} \
+            -Denv=Dev \
             -Dapp.name=githubaction1 \
-            -Danypoint.platform.client_id=${{ secrets.ANYPOINT_CLIENT_ID }} \
-            -Danypoint.platform.client_secret=${{ secrets.ANYPOINT_CLIENT_SECRET }}
+            -Danypoint.platform.client_id=777df98bcd084a75bfe4b973a9e53516 \
+            -Danypoint.platform.client_secret=AF10d59Ee8C64EFb85BCc8474b2aA7eD
